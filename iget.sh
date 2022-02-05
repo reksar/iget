@@ -1,6 +1,9 @@
 #!/bin/bash
 
-curl $1 --compressed -s -v \
+# Gets an Instagram post URL (embed version) as $1 param.
+# Outputs the post's image URL to stdout.
+
+curl $1 --compressed -s \
   -H "accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9" \
   -H "accept-encoding: gzip, deflate, br" \
   -H "cache-control: no-cache" \
