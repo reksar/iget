@@ -34,7 +34,7 @@ fi
 
 url_embed="${url}embed/"
 
-# Headers for user agent faking.
+# HTTP headers for user agent faking.
 
 headers='-H "accept: text/html,application/xhtml+xml,application/xml;'
 headers+='q=0.9,image/avif,image/webp,image/apng,*/*;'
