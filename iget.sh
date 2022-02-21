@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Gets an Instagram post URL as $1 param.
-# Outputs the post's image URL to stdout.
+# Outputs URL of the post image to stdout.
 #
 # For example, the
 #
@@ -27,14 +27,17 @@ if ! [[ $url =~ $url_regex ]]; then
   exit 1
 fi
 
-# Append the slash at the end if needed.
+# Add a slash if needed.
 if [[ "${url: -1}" != "/" ]]; then
   url="$url/"
 fi
 
-url_embed="${url}embed/"
+# Spoofing a request with embedded Instagram post query.
+embed_query='cr=1\&v=14\&wp=540\&rd=%2Fstatic%2Fimage.html'
+# Convert post URL -> URL for post embedding.
+url_embed="${url}embed/?${embed_query}"
 
-# HTTP headers for user agent faking.
+# HTTP headers for user agent spoofing.
 
 headers='-H "accept: text/html,application/xhtml+xml,application/xml;'
 headers+='q=0.9,image/avif,image/webp,image/apng,*/*;'
@@ -59,12 +62,12 @@ headers+=' -H "sec-fetch-site: none"'
 headers+=' -H "sec-fetch-user: ?1"'
 headers+=' -H "upgrade-insecure-requests: 1"'
 
-# Instagram response will be gzipped, so we need the `--compressed`.
+# Response will be gzipped, so we need `--compressed`.
 get_embed="curl $url_embed $headers --silent --compressed"
 
-# Expect that response will contain the `img.<img_class>`, that looks like:
+# An embedded Instagram post is expected to contain an img like:
 #   <img class="<img_class>" alt="..." src="<url-1080>"
-#     srcset="<url-640> 640w,<url-740> 740w,<url-1080> 1080w" />
+#     srcset="<url-640> 640w,<url-750> 750w,<url-1080> 1080w" />
 img_class=EmbeddedMediaImage
 find_img_str="grep $img_class"
 
