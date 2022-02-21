@@ -26,3 +26,9 @@ _nc_sid=78c662
 require_once 'iget-php/iget.php';
 $url = iget\img_url('https://www.instagram.com/p/<post_id>/');
 ```
+
+## History
+
+It was 04.10.2021 [https://youtu.be/roBVl2X7mQs](https://youtu.be/roBVl2X7mQs) 
+and all crap with the FB DNS happened just at the time I was recording the 
+screencast :)
