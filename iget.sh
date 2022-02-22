@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Gets an Instagram post URL as $1 param.
-# Outputs URL of the post image to stdout.
+# Using:
+#
+#   iget.sh https://www.instagram.com/p/<post_id>/ <image_width>
+#
+# <image_width> is optional and can be: 640, 750 or 1080 (default) px.
 #
 # For example, the
 #
@@ -15,20 +18,36 @@
 #   _nc_ohc=hOLSmGd1DpAAX9SFiBs&edm=AJBgZrYBAAAA&ccb=7-4&
 #   oh=00_AT_ikXhHf_8YvyySyoDQZZ2onjenV91lR79aNYFBYy4VdA&oe=6206092F&
 #   _nc_sid=78c662
+#
+# and the
+#
+#   ./iget.sh https://www.instagram.com/p/CX8wkS_qNMq/ 640
+#
+# gives
+#
+#   https://instagram.fdnk3-1.fna.fbcdn.net/v/t51.2885-15/
+#   269961451_836551910434198_8806515854959711608_n.jpg?
+#   stp=dst-jpg_e35_s640x640_sh0.08&_nc_ht=instagram.fdnk3-1.fna.fbcdn.net&
+#   _nc_cat=110&_nc_ohc=2ZSO0JAg44YAX-ZPoI3&edm=AJBgZrYBAAAA&ccb=7-4&
+#   oh=00_AT9ZCu6t-GoPDRFMmMZOIUgpqYk8-lYKm8vPpkb0FZUCGg&oe=621D0264&
+#   _nc_sid=78c662
 
 url=$1
+given_width=$2
 
 id_length=11
 id_regex="[A-Za-z0-9+-_@]{$id_length}"
 url_regex="https://www.instagram.com/p/$id_regex/?$"
 
-if ! [[ $url =~ $url_regex ]]; then
-  echo Bad URL. Use iget.sh https://www.instagram.com/p/\<post_id\>/
+if ! [[ $url =~ $url_regex ]]
+then
+  echo Bad URL. Required https://www.instagram.com/p/\<post_id\>/
   exit 1
 fi
 
 # Add a slash if needed.
-if [[ "${url: -1}" != "/" ]]; then
+if [[ "${url: -1}" != "/" ]]
+then
   url="$url/"
 fi
 
@@ -74,7 +93,18 @@ find_img_str="grep $img_class"
 # &amp; -> &
 convert_amp="sed 's/\&amp;/\&/g'"
 
-# Cut the `1080w` image URL from the `img.srcset`.
-cut_url="sed -r 's/.*srcset=\".*(https:[^:]*) 1080w.*/\\1/'"
+DEFAULT_WIDTH=1080
+VALID_WIDTH=($DEFAULT_WIDTH 750 640)
+given_width=${given_width:-$DEFAULT_WIDTH}
+for w in ${VALID_WIDTH[*]}
+do
+  if [ $w == $given_width ]
+  then
+    width=$given_width
+    break
+  fi
+done
+width=${width:-$DEFAULT_WIDTH}
+cut_url="sed -r 's/.*srcset=\".*(https:[^:]*) ${width}w.*/\\1/'"
 
 eval "$get_embed | $find_img_str | $convert_amp | $cut_url"

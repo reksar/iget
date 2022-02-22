@@ -16,6 +16,8 @@ _nc_sid=78c662
 
 ## Using
 
+The second optional param can be an image width: 640, 750 or 1080 (default) px.
+
 ### Shell
 
 `./iget.sh https://www.instagram.com/p/<post_id>/`
