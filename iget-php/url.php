@@ -1,8 +1,7 @@
 <?php namespace iget;
 
 // For Instagram post URL https://www.instagram.com/p/<post_id>/
-const POST_ID_LENGTH = 11;
-const POST_ID_REGEXP = '[[:alnum:]+-_@]{'.POST_ID_LENGTH.'}';
+const POST_ID_REGEXP = '[[:alnum:]+-_@]+';
 const POST_URL_REGEXP = '/instagram.com\/p\/'.POST_ID_REGEXP.'\/?$/';
 
 // HTTP GET params to spoof a request from an embedded Instagram post.

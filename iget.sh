@@ -34,8 +34,7 @@
 
 exit_if_invalid_post_url()
 {
-  id_length=11
-  id_regexp="[A-Za-z0-9+-_@]{$id_length}"
+  id_regexp="[A-Za-z0-9+-_@]+"
   url_regexp="https://www.instagram.com/p/$id_regexp/?$"
 
   if ! [[ $1 =~ $url_regexp ]]
