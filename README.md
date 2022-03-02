@@ -77,4 +77,6 @@ const img = __r(3).createElement('img', {src: '<url>'});
 __r(15).render(img, document.body);
 ```
 
-It may be used as exploit if you can bypass the CORS policy and use some XSS.
+See [https://youtu.be/y7ruPgU-BzA](https://youtu.be/y7ruPgU-BzA)
+
+It may be useful if you can bypass the CORS policy.
