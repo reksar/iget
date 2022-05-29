@@ -123,7 +123,7 @@ filter_image_url()
   local html=$1
   local width=$(validate_image_width $2)
 
-  # An embedded Instagram post is expected to contain an img like:
+  # An embedded Instagram post is expected to contain an <img> like:
   #   <img class="<img_class>" alt="..." src="<url-1080>"
   #     srcset="<url-640> 640w,<url-750> 750w,<url-1080> 1080w" />
   local img_class=EmbeddedMediaImage

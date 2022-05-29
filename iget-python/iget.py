@@ -1,8 +1,52 @@
+"""
+Using:
+
+  img_url('https://www.instagram.com/p/<post_id>/')
+
+  img_url('https://www.instagram.com/p/<post_id>/', <image_width>)
+
+For example, the
+
+  img_url('https://www.instagram.com/p/CX8wkS_qNMq/')
+
+gives
+
+  https://instagram.fdnk3-1.fna.fbcdn.net/v/t51.2885-15/e35/s1080x1080/
+  269961451_836551910434198_8806515854959711608_n.jpg?
+  _nc_ht=instagram.fdnk3-1.fna.fbcdn.net&_nc_cat=110&
+  _nc_ohc=hOLSmGd1DpAAX9SFiBs&edm=AJBgZrYBAAAA&ccb=7-4&
+  oh=00_AT_ikXhHf_8YvyySyoDQZZ2onjenV91lR79aNYFBYy4VdA&oe=6206092F&
+  _nc_sid=78c662
+
+and the
+
+  img_url('https://www.instagram.com/p/CX8wkS_qNMq/', 640)
+
+gives
+
+  https://instagram.fdnk3-1.fna.fbcdn.net/v/t51.2885-15/
+  269961451_836551910434198_8806515854959711608_n.jpg?
+  stp=dst-jpg_e35_s640x640_sh0.08&_nc_ht=instagram.fdnk3-1.fna.fbcdn.net&
+  _nc_cat=110&_nc_ohc=2ZSO0JAg44YAX-ZPoI3&edm=AJBgZrYBAAAA&ccb=7-4&
+  oh=00_AT9ZCu6t-GoPDRFMmMZOIUgpqYk8-lYKm8vPpkb0FZUCGg&oe=621D0264&
+  _nc_sid=78c662
+"""
+
 import re
 import gzip
+import html
+from urllib.parse import urlencode, urljoin
 from urllib.request import Request, urlopen
 
 
+# Available URL format.
+POST_ID = '[A-Za-z0-9+-_@]+'
+POST_URL = f"https://www.instagram.com/p/{POST_ID}/?$"
+
+DEFAULT_WIDTH = 1080
+AVAILABLE_WIDTH = DEFAULT_WIDTH, 750, 640
+
+# HTTP headers for user agent spoofing.
 HTTP_HEADERS = {
     'accept': 'text/html,application/xhtml+xml,application/xml;'
         'q=0.9,image/avif,image/webp,image/apng,*/*;'
@@ -28,43 +72,54 @@ HTTP_HEADERS = {
     'upgrade-insecure-requests': '1',
 }
 
-DEFAULT_WIDTH = 1080
-AVAILABLE_WIDTH = DEFAULT_WIDTH, 750, 640
-
-
-def is_post_url(url):
-    post_id = '[A-Za-z0-9+-_@]+'
-    post_url = f"https://www.instagram.com/p/{post_id}/?$"
-    return re.match(post_url, url)
-
-
-def embedded_post_url(post_url):
-
-    if post_url[-1] == '/':
-        post_url = post_url[:-1]
-
-    embed_query = 'cr=1\&v=14\&wp=540\&rd=%2Fstatic%2Fimage.html'
-
-    return f"{post_url}/embed/?{embed_query}"
-
-
-def html(url):
-    with urlopen(Request(url, headers=HTTP_HEADERS)) as response:
-
-        data = response.read()
-
-        if response.info()['Content-Encoding'] == 'gzip':
-            return gzip.decompress(data).decode()
-
-        return data.decode()
-
-
-def filter_img_url(html, img_width):
-    img_src = f".*srcset=\".*(https:[^:]*) {img_width}w"
-    url = re.search(img_src, html).group(1)
-    return url.replace('&amp;', '&')
+# Spoofing a request with embedded Instagram post query.
+EMBED_QUERY = urlencode(
+    {
+        'cr': 1,
+        'v': 14,
+        'wp': 540,
+        'rd': '/static/image.html',
+    },
+).encode('ascii')
 
 
 def img_url(post_url, img_width=DEFAULT_WIDTH):
     if is_post_url(post_url) and img_width in AVAILABLE_WIDTH:
-        return filter_img_url(html(embedded_post_url(post_url)), img_width)
+        return find_img_url(embed_post(post_url), img_width)
+
+
+def is_post_url(url):
+    return re.match(POST_URL, url)
+
+
+def find_img_url(instagram_post, img_width):
+    """
+    An embedded Instagram post is expected to contain an <img> like:
+
+      <img class="<img_class>" alt="..." src="<url-1080>"
+        srcset="<url-640> 640w,<url-750> 750w,<url-1080> 1080w" />
+
+    Find <url-`img_width`> in `srcset`.
+    """
+    img_src = f".*srcset=\".*(https:[^:]*) {img_width}w"
+    url = re.search(img_src, instagram_post).group(1)
+    # Note: src URL is escaped.
+    return html.unescape(url)
+
+
+def embed_post(post_url):
+
+    # https://www.instagram.com/p/{POST_ID}/embed/
+    embed_url = urljoin(post_url, 'embed')
+
+    # https://www.instagram.com/p/{POST_ID}/embed/?<EMBED_QUERY>
+    request = Request(embed_url, EMBED_QUERY, HTTP_HEADERS)
+
+    with urlopen(request) as response:
+        return html_data(response.read(), response.info())
+
+
+def html_data(data, info):
+    if info['Content-Encoding'] == 'gzip':
+        return gzip.decompress(data).decode()
+    return data.decode()

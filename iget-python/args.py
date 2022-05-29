@@ -39,8 +39,9 @@ def args():
         nargs='?',
         default=DEFAULT_WIDTH,
         action=ValidateImgWidth,
-        help='Post image width: [1080, 750, 640] px',
+        help=f"Post image width {AVAILABLE_WIDTH} px.",
     )
 
     args = parser.parse_args()
+
     return args.post_url, args.img_width
