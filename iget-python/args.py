@@ -1,12 +1,12 @@
 from argparse import ArgumentParser, ArgumentError, Action
-from iget import DEFAULT_WIDTH, AVAILABLE_WIDTH, is_post_url
+from iget import DEFAULT_WIDTH, AVAILABLE_WIDTH, POST_URL
 
 
 class ValidatePostUrl(Action):
 
     def __call__(self, parser, namespace, value, options=''):
 
-        if is_post_url(value):
+        if POST_URL.match(value):
             namespace.post_url = value
         else:
             raise ArgumentError(self, 'Invalid URL of Instagram post!')

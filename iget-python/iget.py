@@ -41,7 +41,7 @@ from urllib.request import Request, urlopen
 
 # Available URL format.
 POST_ID = '[A-Za-z0-9+-_@]+'
-POST_URL = f"https://www.instagram.com/p/{POST_ID}/?$"
+POST_URL = re.compile(f"https://www.instagram.com/p/{POST_ID}/?$")
 
 DEFAULT_WIDTH = 1080
 AVAILABLE_WIDTH = DEFAULT_WIDTH, 750, 640
@@ -84,12 +84,8 @@ EMBED_QUERY = urlencode(
 
 
 def img_url(post_url, img_width=DEFAULT_WIDTH):
-    if is_post_url(post_url) and img_width in AVAILABLE_WIDTH:
+    if POST_URL.match(post_url) and img_width in AVAILABLE_WIDTH:
         return find_img_url(embed_post(post_url), img_width)
-
-
-def is_post_url(url):
-    return re.match(POST_URL, url)
 
 
 def find_img_url(instagram_post, img_width):
@@ -102,24 +98,22 @@ def find_img_url(instagram_post, img_width):
     Find <url-`img_width`> in `srcset`.
     """
     img_src = f".*srcset=\".*(https:[^:]*) {img_width}w"
-    url = re.search(img_src, instagram_post).group(1)
-    # Note: src URL is escaped.
-    return html.unescape(url)
+    found = re.search(img_src, instagram_post)
+    if found:
+        url = found.group(1)
+        # Note: src URL is escaped.
+        return html.unescape(url)
 
 
 def embed_post(post_url):
-
     # https://www.instagram.com/p/{POST_ID}/embed/
     embed_url = urljoin(post_url, 'embed')
-
     # https://www.instagram.com/p/{POST_ID}/embed/?<EMBED_QUERY>
-    request = Request(embed_url, EMBED_QUERY, HTTP_HEADERS)
+    return get_content(Request(embed_url, EMBED_QUERY, HTTP_HEADERS))
 
+
+def get_content(request):
     with urlopen(request) as response:
-        return html_data(response.read(), response.info())
-
-
-def html_data(data, info):
-    if info['Content-Encoding'] == 'gzip':
-        return gzip.decompress(data).decode()
-    return data.decode()
+        gzipped = response.read()
+        data = gzip.decompress(gzipped)
+        return data.decode()
