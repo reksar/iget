@@ -6,7 +6,7 @@ class ValidatePostUrl(Action):
 
     def __call__(self, parser, namespace, value, options=''):
 
-        if POST_URL.match(value):
+        if POST_URL.fullmatch(value):
             namespace.post_url = value
         else:
             raise ArgumentError(self, 'Invalid URL of Instagram post!')

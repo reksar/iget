@@ -40,7 +40,7 @@ from urllib.request import Request, urlopen
 
 
 # Available URL format.
-POST_ID = '[A-Za-z0-9+-_@]+'
+POST_ID = '[\w\-@+]+'
 POST_URL = re.compile(f"https://www.instagram.com/p/{POST_ID}/?$")
 
 DEFAULT_WIDTH = 1080
@@ -84,7 +84,7 @@ EMBED_QUERY = urlencode(
 
 
 def img_url(post_url, img_width=DEFAULT_WIDTH):
-    if POST_URL.match(post_url) and img_width in AVAILABLE_WIDTH:
+    if POST_URL.fullmatch(post_url) and img_width in AVAILABLE_WIDTH:
         return find_img_url(embed_post(post_url), img_width)
 
 
