@@ -107,7 +107,7 @@ def find_img_url(instagram_post, img_width):
 
 def embed_post(post_url):
     # https://www.instagram.com/p/{POST_ID}/embed/
-    embed_url = urljoin(post_url, 'embed')
+    embed_url = urljoin(f"{post_url}/", 'embed')
     # https://www.instagram.com/p/{POST_ID}/embed/?<EMBED_QUERY>
     return get_content(Request(embed_url, EMBED_QUERY, HTTP_HEADERS))
 
