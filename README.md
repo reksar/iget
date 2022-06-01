@@ -20,13 +20,19 @@ The second optional param can be an image width: 640, 750 or 1080 (default) px.
 
 ### Shell
 
-`./iget.sh https://www.instagram.com/p/<post_id>/`
+`iget.sh https://www.instagram.com/p/<post_id>/`
 
 ### PHP
 
 ```php
 require_once 'iget-php/iget.php';
 $url = iget\img_url('https://www.instagram.com/p/<post_id>/');
+```
+
+### Python
+
+```bash
+python iget-python https://www.instagram.com/p/<post_id>/
 ```
 
 ---

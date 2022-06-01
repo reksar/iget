@@ -90,12 +90,10 @@ def img_url(post_url, img_width=DEFAULT_WIDTH):
 
 def find_img_url(instagram_post, img_width):
     """
-    An embedded Instagram post is expected to contain an <img> like:
+    In embedded Instagram post find the URL for `img_width` in <img srcset>:
 
       <img class="<img_class>" alt="..." src="<url-1080>"
         srcset="<url-640> 640w,<url-750> 750w,<url-1080> 1080w" />
-
-    Find <url-`img_width`> in `srcset`.
     """
     img_src = f".*srcset=\".*(https:[^:]*) {img_width}w"
     found = re.search(img_src, instagram_post)
@@ -106,9 +104,7 @@ def find_img_url(instagram_post, img_width):
 
 
 def embed_post(post_url):
-    # https://www.instagram.com/p/{POST_ID}/embed/
     embed_url = urljoin(f"{post_url}/", 'embed')
-    # https://www.instagram.com/p/{POST_ID}/embed/?<EMBED_QUERY>
     return get_content(Request(embed_url, EMBED_QUERY, HTTP_HEADERS))
 
 
