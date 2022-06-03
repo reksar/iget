@@ -6,14 +6,13 @@ on:
     paths:
       - iget-python
     tags:
-      - v*
+      - "v*.*.*"
 jobs:
   build-zipapp:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: python3 -m zipapp --output iget.pyz iget-python
-      - uses: actions/upload-artifact@v3
+      - uses: softprops/action-gh-release@v1
         with:
-          name: iget.pyz
-          path: iget.pyz
+          files: iget.pyz
