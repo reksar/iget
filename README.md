@@ -35,6 +35,12 @@ $url = iget\img_url('https://www.instagram.com/p/<post_id>/');
 python iget-python https://www.instagram.com/p/<post_id>/
 ```
 
+or use zipapp from [releases](https://github.com/reksar/iget/releases)
+
+```bash
+python iget.pyz https://www.instagram.com/p/<post_id>/
+```
+
 ---
 
 ## Notes
